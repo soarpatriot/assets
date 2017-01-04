@@ -10,9 +10,7 @@ import artTemplate from 'koa-artTemplate'
 import bodyParser from 'koa-bodyparser'
 import path from 'path'
 
-import index from './router/index'
-import api from './router/api'
-import test from './router/test'
+import file from './router/file'
 
 import { KoaErr } from './helper'
 
@@ -71,9 +69,9 @@ app.use(async (ctx, next) => {
 })
 
 // 路由
-app.use(index.routes())
-app.use(api.routes())
-app.use(test.routes())
+//app.use(index.routes())
+//app.use(api.routes())
+app.use(file.routes())
 
 app.listen(process.env.PORT || 3000)
 console.log(`Server up and running! On port ${process.env.PORT || 3000}!`)
