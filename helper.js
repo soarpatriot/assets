@@ -59,7 +59,7 @@ const storage = multer.diskStorage({
     const year = now.getFullYear()
     const month = now.getMonth() + 1
     const day = now.getDate()
-    const dir = path.resolve('upload', `${year}-${month}-${day}`, file.fieldname)
+    const dir = path.resolve('upload', `${year}${month}`, file.fieldname)
     const exists = await fsp.exists(dir)
     if (!exists) {
       await mkdirp(dir)
