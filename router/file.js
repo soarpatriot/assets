@@ -2,7 +2,6 @@ import Router from 'koa-router'
 import { upload } from './../helper'
 
 const file = new Router({
-  prefix: '/test'
 })
 
 file
