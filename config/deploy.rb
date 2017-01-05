@@ -27,7 +27,7 @@ set :linked_files, fetch(:linked_files, []).push('config/process.yml', 'config/a
 
 # Default value for linked_dirs is []
 set :linked_dirs, fetch(:linked_dirs, []).push('bin', 
-   'log', 'tmp/pids', 'upload','node_modules')
+   'log', 'tmp/pids', 'static/upload','node_modules')
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }

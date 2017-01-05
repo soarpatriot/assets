@@ -1,6 +1,5 @@
 import Koa from 'koa'
 import cors from 'koa-cors'
-import body from 'koa-better-body'
 import compress from 'koa-compress'
 import json from 'koa-json'
 import send from 'koa-send'
