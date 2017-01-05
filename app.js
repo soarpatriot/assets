@@ -1,5 +1,6 @@
 import Koa from 'koa'
 import cors from 'koa-cors'
+import body from 'koa-better-body'
 import compress from 'koa-compress'
 import json from 'koa-json'
 import send from 'koa-send'
@@ -10,12 +11,12 @@ import artTemplate from 'koa-artTemplate'
 import bodyParser from 'koa-bodyparser'
 import path from 'path'
 
+
 import file from './router/file'
 
 import { KoaErr } from './helper'
 
 const app = new Koa()
-
 // 全局错误处理
 app.use(async (ctx, next) => {
   try {
@@ -67,6 +68,16 @@ app.use(async (ctx, next) => {
   ctx.send = send
   await next()
 })
+
+//qiniu 
+/**
+app.use(convert(body({
+  IncomingForm: formidable
+})))
+
+app.use(qiniu(config))
+**/
+// qiniu 
 
 // 路由
 //app.use(index.routes())

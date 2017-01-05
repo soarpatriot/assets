@@ -52,15 +52,17 @@ import path from 'path'
 import multer from 'koa-multer'
 import mkdirp from 'mkdirp-then'
 import fsp from 'fs-promise'
-
+import config from './config/app.json'
 const storage = multer.diskStorage({
   async destination (req, file, cb) {
     const now = new Date()
     const year = now.getFullYear()
     const month = now.getMonth() + 1
     const day = now.getDate()
-    const dir = path.resolve('upload', `${year}${month}`, file.fieldname)
+    //const dir = path.resolve(__dirname, 'static/upload', `${year}${month}`, file.fieldname)
+    const dir = path.resolve(__dirname, 'static/upload', `${year}${month}`)
     const exists = await fsp.exists(dir)
+    file.relative = `/${year}${month}`
     if (!exists) {
       await mkdirp(dir)
     }
@@ -70,7 +72,10 @@ const storage = multer.diskStorage({
     const timestamp = new Date().getTime()
     const { name, ext } = path.parse(file.originalname)
     // cb(null, `${name}${ext}`)
-    cb(null, `${timestamp}${ext}`)
+    const filename = `${timestamp}${ext}`
+    file.relative = `${file.relative}/${filename}`
+    file.full = `${config["domain"]}${file.relative}`
+    cb(null, filename)
     //cb(null, `${name}-${randomString(10)}-${ext}`)
   }
 })
