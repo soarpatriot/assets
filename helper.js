@@ -74,7 +74,7 @@ const storage = multer.diskStorage({
     // cb(null, `${name}${ext}`)
     const filename = `${timestamp}${ext}`
     file.relative = `${file.relative}/${filename}`
-    file.full = `${config["domain"]}${file.relative}`
+    file.full = `${config["domain"]}/upload${file.relative}`
     cb(null, filename)
     //cb(null, `${name}-${randomString(10)}-${ext}`)
   }
