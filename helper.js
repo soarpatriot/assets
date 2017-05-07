@@ -52,6 +52,7 @@ import path from 'path'
 import multer from 'koa-multer'
 import mkdirp from 'mkdirp-then'
 import fsp from 'fs-promise'
+import unzip from 'unzip'
 import config from './config/app.json'
 const storage = multer.diskStorage({
   async destination (req, file, cb) {
