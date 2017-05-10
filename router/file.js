@@ -35,12 +35,15 @@ file
     const file = ctx.req.file
     const fileDirPath = fileDir(file.path)
     const { name, ext } = path.parse(file.filename)
+    console.log(`files: `)
     if(ext == '.zip'){
       const unzipPath = absolute(file.path, '.zip')
+      const fullPath = absolute(file.full, '.zip')
       let fd = fs.createReadStream(file.path).pipe(unzip.Extract({ path: unzipPath}))  
       fd.on('close', function(){
         const assets = fs.readdirSync(unzipPath)
         file.list = assets
+        file.parent = fullPath
         console.log(`finished files: `)
         // console.log(`files: ${JSON.stringify(files)}`)
       })
