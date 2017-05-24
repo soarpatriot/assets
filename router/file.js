@@ -4,6 +4,7 @@ import { absolute, fileDir } from './../zip'
 import path from 'path'
 import fs from 'fs'
 import unzip from 'unzip'
+import shell from 'shelljs'
 const file = new Router({
 })
 
@@ -39,19 +40,29 @@ file
     if(ext == '.zip'){
       const unzipPath = absolute(file.path, '.zip')
       const fullPath = absolute(file.full, '.zip')
+      console.log(`unzpi ${unzipPath}    fll: ${fullPath}  filename: ${file.filename}`)  
+      const command = `unzip -o -d ${unzipPath} ${unzipPath}.zip` 
+      if (shell.exec(command).code !== 0  ){
+        console.log('unzpi fail')  
+      }else {
+        console.log('unzip success')  
+        const assets = fs.readdirSync(unzipPath)
+        file.list = assets
+        file.parent = fullPath
+      }
+      /**
       let fd = fs.createReadStream(file.path).pipe(unzip.Extract({ path: unzipPath}))  
       fd.on('close', function(){
         const assets = fs.readdirSync(unzipPath)
         file.list = assets
         file.parent = fullPath
         console.log(`finished files: `)
-        // console.log(`files: ${JSON.stringify(files)}`)
       })
       let end = new Promise(function(resolve, reject){
         fd.on('close', resolve)
         fd.on('error', reject) 
       })
-      await end
+      await end **/
     }
     // console.log(`aa: ${JSON.stringify(file)}`)
     ctx.body = ctx.req.file
