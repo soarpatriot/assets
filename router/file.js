@@ -1,8 +1,10 @@
 import Router from 'koa-router'
 import { upload } from './../helper'
+import { snapshot } from './../snapshot'
 import { absolute, fileDir } from './../zip'
 import path from 'path'
 import fs from 'fs'
+import fse from 'fs-extra'
 import unzip from 'unzip'
 import shell from 'shelljs'
 const file = new Router({
@@ -17,9 +19,33 @@ file
   .post('/post', ctx => {
     ctx.body = ctx.request.body
   })
-  .post('/file', upload.single('avatar'), async ctx => {
+  .post('/files/snapshot', snapshot.single('avatar'), async ctx => {
     ctx.body = ctx.req.file
   })
+
+  /**
+  .post('/file/snapshot',  async ctx => {
+    const postId = ctx.request.body.post_id
+    const filePrefix = new Date().getTime()
+    const imgData = ctx.request.body.snap.replace(/^data:image\/png;base64,/, "")
+    const dir = path.resolve(__dirname, '../static/upload', `${postId}`)
+    console.log(`${dir}`)
+    // const exists = await fse.exists(dir)
+    // console.log(`exist: ${exists}`)
+    // if (!exists) {
+    //  await fse.ensureDir(dir)
+    //  console.log(`make`)
+    // }
+ 
+    // console.log(ctx.request.body.snap)
+    try {
+      await  fse.outputFile(`${dir}/${filePrefix}.png`, imgData, 'base64')
+      ctx.body = {code: 0}
+    } catch (err) {
+      ctx.body = {code: 1}
+    }
+  })
+  **/ 
   /**
   .post('/files/mutiple', upload.any(), async ctx => {
     const files = ctx.req.files
