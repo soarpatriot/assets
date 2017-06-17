@@ -7,6 +7,8 @@ import fs from 'fs'
 import fse from 'fs-extra'
 import unzip from 'unzip'
 import shell from 'shelljs'
+import child_process from 'child_process'
+
 const file = new Router({
 })
 
@@ -57,7 +59,8 @@ file
       }
     })
     ctx.body = ctx.req.files
-  })**/
+  })
+  **/
   .post('/files', upload.single('model'), async ctx => {
     const file = ctx.req.file
     const fileDirPath = fileDir(file.path)
@@ -68,13 +71,46 @@ file
       const fullPath = absolute(file.full, '.zip')
       console.log(`unzpi ${unzipPath}    fll: ${fullPath}  filename: ${file.filename}`)  
       const command = `unzip -o -d ${unzipPath} ${unzipPath}.zip` 
-      if (shell.exec(command).code !== 0  ){
+      if(shell.exec(command).code !== 0  ){
         console.log('unzpi fail')  
       }else {
         console.log('unzip success')  
         const assets = fs.readdirSync(unzipPath)
         file.list = assets
         file.parent = fullPath
+
+        // 转换模型
+        const convertFilePath = path.resolve('./static/convert_obj_three.py');
+        console.log('转换文件路径' + convertFilePath);
+        var modelFilePath;
+        var destBinFilePath;
+        // 查找到模型文件位置
+        for (var i = 0; i < assets.length; i++) {
+          const fileName = assets[i];
+          const { name, ext } = path.parse(fileName)
+          if (ext == '.obj') {
+            modelFilePath = unzipPath + '/' + fileName;
+            console.log(modelFilePath);
+            destBinFilePath = unzipPath + '/' + name + '_bin.js';
+            console.log(destBinFilePath);
+            break;
+          } else if (ext == '.fbx') {
+
+          }
+        }
+        const convertString = 'python ' + convertFilePath + ' -i ' + modelFilePath + ' -o ' + destBinFilePath + ' -a center -t binary'
+        console.log(convertString)
+        child_process.exec(convertString, function(error, stdout, stderr) {
+           if(stdout.length > 1) {
+                console.log('you offer args:',stdout)
+                console.log('转换模型成功,转换后的文件位置:' + destBinFilePath);
+            }else {
+                console.log('you don\'t offer args')
+            }
+            if(error) {
+                console.info('stderr : '+stderr)
+            }
+        })
       }
       /**
       let fd = fs.createReadStream(file.path).pipe(unzip.Extract({ path: unzipPath}))  
