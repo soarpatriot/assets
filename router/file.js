@@ -71,46 +71,75 @@ file
       const fullPath = absolute(file.full, '.zip')
       console.log(`unzpi ${unzipPath}    fll: ${fullPath}  filename: ${file.filename}`)  
       const command = `unzip -o -d ${unzipPath} ${unzipPath}.zip` 
-      if(shell.exec(command).code !== 0  ){
+      if (shell.exec(command).code !== 0  ){
         console.log('unzpi fail')  
-      }else {
+      } else {
         console.log('unzip success')  
         const assets = fs.readdirSync(unzipPath)
         file.list = assets
         file.parent = fullPath
 
+        let modelType = 0;
         // 转换模型
-        const convertFilePath = path.resolve('./static/convert_obj_three.py');
-        console.log('转换文件路径' + convertFilePath);
+        let filesArr = [];
+        readDirSync(unzipPath, filesArr);
+        console.log("所有文件:" + filesArr);
+
         var modelFilePath;
         var destBinFilePath;
         // 查找到模型文件位置
-        for (var i = 0; i < assets.length; i++) {
-          const fileName = assets[i];
-          const { name, ext } = path.parse(fileName)
+        for (var i = 0; i < filesArr.length; i++) {
+          const filePath = filesArr[i];
+          const { name, ext } = path.parse(filePath);
           if (ext == '.obj') {
-            modelFilePath = unzipPath + '/' + fileName;
-            console.log(modelFilePath);
-            destBinFilePath = unzipPath + '/' + name + '_bin.js';
-            console.log(destBinFilePath);
+            modelFilePath = filePath;
+            console.log("模型文件位置:" + modelFilePath);
+            destBinFilePath = path.dirname(filePath) + "/" + path.basename(filePath, '.obj') + "_bin.js";
+            console.log("转换后的文件:" + destBinFilePath);
+            modelType = 1;
             break;
           } else if (ext == '.fbx') {
-
+            modelFilePath = filePath;
+            console.log("模型文件位置:" + modelFilePath);
+            destBinFilePath = path.dirname(filePath) + "/" + path.basename(filePath, '.fbx') + "_bin.js";
+            console.log("转换后的文件:" + destBinFilePath);
+            modelType = 2;
+            break;
           }
         }
-        const convertString = 'python ' + convertFilePath + ' -i ' + modelFilePath + ' -o ' + destBinFilePath + ' -a center -t binary'
-        console.log(convertString)
-        child_process.exec(convertString, function(error, stdout, stderr) {
-           if(stdout.length > 1) {
-                console.log('you offer args:',stdout)
-                console.log('转换模型成功,转换后的文件位置:' + destBinFilePath);
-            }else {
-                console.log('you don\'t offer args')
-            }
-            if(error) {
-                console.info('stderr : '+stderr)
-            }
-        })
+        if (modelType == 1) {        // obj模型
+          const convertFilePath = path.resolve('./static/python/convert_obj_three.py');
+          console.log('转换文件路径' + convertFilePath);
+          const convertString = 'python ' + convertFilePath + ' -i ' + modelFilePath + ' -o ' + destBinFilePath + ' -a center -t binary'
+          console.log(convertString)
+          child_process.exec(convertString, function(error, stdout, stderr) {
+             if (stdout.length > 1) {
+                  console.log('you offer args:',stdout)
+                  console.log('转换OBJ成功,转换后的文件位置:' + destBinFilePath);
+              } else {
+                  console.log('you don\'t offer args')
+              }
+              if (error) {
+                  console.info('stderr: ' + stderr)
+              }
+          });
+        } else if (modelType == 2) { // fbx模型
+          const convertFilePath = path.resolve('./static/python/convert_to_threejs.py');
+          console.log('转换文件路径' + convertFilePath);
+          const convertString = 'python ' + convertFilePath + ' ' + modelFilePath + ' ' + destBinFilePath;
+          console.log(convertString)
+          child_process.exec(convertString, function(error, stdout, stderr) {
+             if (stdout.length > 1) {
+                  console.log('you offer args:',stdout)
+                  console.log('转换FBX成功,转换后的文件位置:' + destBinFilePath);
+              } else {
+                  console.log('you don\'t offer args')
+              }
+              if (error) {
+                  console.info('stderr: ' + stderr)
+              }
+          });
+        }
       }
       /**
       let fd = fs.createReadStream(file.path).pipe(unzip.Extract({ path: unzipPath}))  
@@ -148,5 +177,23 @@ file
     ctx.body = result
   })
 
+  function readDirSync(path, filesArr) {
+    if (!filesArr) {
+      filesArr = [];
+    }
+    var pa = fs.readdirSync(path);  
+    pa.forEach(function(ele, index) {  
+        var info = fs.statSync(path + "/" + ele);      
+        if (info.isDirectory()) {  
+            console.log("dir: " + ele);
+            if (ele != '__MACOSX') {  // 排除mac系统的替身文件
+              readDirSync(path + "/" + ele, filesArr);
+            }  
+        } else {  
+            console.log("file: "+ path + "/" + ele); 
+            filesArr.push(path + "/" + ele); 
+        }     
+      })
+  }
 
 export default file
