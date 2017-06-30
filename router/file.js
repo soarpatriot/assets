@@ -1,4 +1,5 @@
 import Router from 'koa-router'
+import * as image from './../image'
 import { upload } from './../helper'
 import { snapshot } from './../snapshot'
 import { absolute, fileDir } from './../zip'
@@ -7,6 +8,7 @@ import fs from 'fs'
 import fse from 'fs-extra'
 import unzip from 'unzip'
 import shell from 'shelljs'
+
 const file = new Router({
 })
 
@@ -20,6 +22,14 @@ file
     ctx.body = ctx.request.body
   })
   .post('/files/snapshot', snapshot.single('avatar'), async ctx => {
+    const file = ctx.req.file
+    const postId = ctx.req.body.post_id
+    // console.log(`upload: ${JSON.stringify(file)}`)
+    // const uploadedPath = absolute(file.path, '.png')
+    const { name, ext } = path.parse(file.originalname)
+    const newName = `${file.destination}/${postId}${ext}`
+    // console.log(`upload: ${newName}`)
+    await image.resize(file.path, newName)
     ctx.body = ctx.req.file
   })
 
