@@ -2,6 +2,7 @@ import Router from 'koa-router'
 import { upload } from './../helper'
 import { snapshot } from './../snapshot'
 import { absolute, fileDir } from './../zip'
+import * as convert from './../convert'
 import path from 'path'
 import fs from 'fs'
 import fse from 'fs-extra'
@@ -66,24 +67,20 @@ file
     const fileDirPath = fileDir(file.path)
     const { name, ext } = path.parse(file.filename)
     console.log(`files: `)
+    const unzipPath = absolute(file.path, '.zip')
+    const fullPath = absolute(file.full, '.zip')
     if(ext == '.zip'){
-      const unzipPath = absolute(file.path, '.zip')
-      const fullPath = absolute(file.full, '.zip')
       console.log(`unzpi ${unzipPath}    fll: ${fullPath}  filename: ${file.filename}`)  
       const command = `unzip -o -d ${unzipPath} ${unzipPath}.zip` 
       if (shell.exec(command).code !== 0  ){
         console.log('unzpi fail')  
       } else {
         console.log('unzip success')  
-        const assets = fs.readdirSync(unzipPath)
-        file.list = assets
-        file.parent = fullPath
-
         let modelType = 0;
         // 转换模型
         let filesArr = [];
         readDirSync(unzipPath, filesArr);
-        console.log("所有文件:" + filesArr);
+        // console.log("所有文件:" + filesArr);
 
         var modelFilePath;
         var destBinFilePath;
@@ -108,37 +105,9 @@ file
           }
         }
         if (modelType == 1) {        // obj模型
-          const convertFilePath = path.resolve('./static/python/convert_obj_three.py');
-          console.log('转换文件路径' + convertFilePath);
-          const convertString = 'python ' + convertFilePath + ' -i ' + modelFilePath + ' -o ' + destBinFilePath + ' -a center -t binary'
-          console.log(convertString)
-          child_process.exec(convertString, function(error, stdout, stderr) {
-             if (stdout.length > 1) {
-                  console.log('you offer args:',stdout)
-                  console.log('转换OBJ成功,转换后的文件位置:' + destBinFilePath);
-              } else {
-                  console.log('you don\'t offer args')
-              }
-              if (error) {
-                  console.info('stderr: ' + stderr)
-              }
-          });
+          convert.obj(modelFilePath, destBinFilePath)
         } else if (modelType == 2) { // fbx模型
-          const convertFilePath = path.resolve('./static/python/convert_to_threejs.py');
-          console.log('转换文件路径' + convertFilePath);
-          const convertString = 'python ' + convertFilePath + ' ' + modelFilePath + ' ' + destBinFilePath;
-          console.log(convertString)
-          child_process.exec(convertString, function(error, stdout, stderr) {
-             if (stdout.length > 1) {
-                  console.log('you offer args:',stdout)
-                  console.log('转换FBX成功,转换后的文件位置:' + destBinFilePath);
-              } else {
-                  console.log('you don\'t offer args')
-              }
-              if (error) {
-                  console.info('stderr: ' + stderr)
-              }
-          });
+          convert.fbx(modelFilePath, destBinFilePath)
         }
       }
       /**
@@ -156,6 +125,10 @@ file
       await end **/
     }
     // console.log(`aa: ${JSON.stringify(file)}`)
+    const assets = fs.readdirSync(unzipPath)
+    file.list = assets
+    file.parent = fullPath
+
     ctx.body = ctx.req.file
   })
  
