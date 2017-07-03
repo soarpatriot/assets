@@ -111,23 +111,22 @@ file
           const convertFilePath = path.resolve('./static/python/convert_obj_three.py');
           console.log('转换文件路径' + convertFilePath);
           const convertString = 'python ' + convertFilePath + ' -i ' + modelFilePath + ' -o ' + destBinFilePath + ' -a center -t binary'
-          console.log(convertString)
-          child_process.exec(convertString, function(error, stdout, stderr) {
-             if (stdout.length > 1) {
-                  console.log('you offer args:',stdout)
-                  console.log('转换OBJ成功,转换后的文件位置:' + destBinFilePath);
-              } else {
-                  console.log('you don\'t offer args')
-              }
-              if (error) {
-                  console.info('stderr: ' + stderr)
-              }
-          });
+          console.log(convertString);
+          try {
+            // 同步转格
+            const stdout = child_process.execSync(convertString);
+            console.log(stdout);
+            console.log('转换OBJ成功,转换后的文件位置:' + destBinFilePath);
+            file.list = [destBinFilePath];
+          } catch (ex) {
+            console.log(ex);
+          };
         } else if (modelType == 2) { // fbx模型
           const convertFilePath = path.resolve('./static/python/convert_to_threejs.py');
           console.log('转换文件路径' + convertFilePath);
           const convertString = 'python ' + convertFilePath + ' ' + modelFilePath + ' ' + destBinFilePath;
-          console.log(convertString)
+          console.log(convertString);
+          // 异步转格式
           child_process.exec(convertString, function(error, stdout, stderr) {
              if (stdout.length > 1) {
                   console.log('you offer args:',stdout)
