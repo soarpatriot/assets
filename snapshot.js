@@ -25,8 +25,8 @@ const storage = multer.diskStorage({
     const timestamp = new Date().getTime()
     const { name, ext } = path.parse(file.originalname)
     // cb(null, `${name}${ext}`)
-    const filename = `${postId}${ext}`
-    file.relative = `${file.relative}/${filename}`
+    const filename = `${timestamp}${ext}`
+    file.relative = `${file.relative}/${postId}${ext}`
     file.full = `${config["domain"]}/upload${file.relative}`
     cb(null, filename)
     //cb(null, `${name}-${randomString(10)}-${ext}`)
