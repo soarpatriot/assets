@@ -3,6 +3,7 @@ import { upload } from './../helper'
 import { snapshot } from './../snapshot'
 import { absolute, fileDir } from './../zip'
 import * as convert from './../convert'
+import * as f from './../helpers/f'
 import path from 'path'
 import fs from 'fs'
 import fse from 'fs-extra'
@@ -66,9 +67,9 @@ file
     const file = ctx.req.file
     const fileDirPath = fileDir(file.path)
     const { name, ext } = path.parse(file.filename)
-    console.log(`files: `)
     const unzipPath = absolute(file.path, '.zip')
     const fullPath = absolute(file.full, '.zip')
+    console.log(`unzipPath: ${unzipPath}`)
     if(ext == '.zip'){
       console.log(`unzpi ${unzipPath}    fll: ${fullPath}  filename: ${file.filename}`)  
       const command = `unzip -o -d ${unzipPath} ${unzipPath}.zip` 
@@ -76,59 +77,39 @@ file
         console.log('unzpi fail')  
       } else {
         console.log('unzip success')  
-        let modelType = 0;
         // 转换模型
-        let filesArr = [];
-        readDirSync(unzipPath, filesArr);
+        // const filesArr = fs.readdirSync(unzipPath)
+        const filesArr = await f.listDir(unzipPath)
+        const flatedArr = f.flat(filesArr)
+        // const refinedArr = f.regenRelative(fa, unzipPath)
         // console.log("所有文件:" + filesArr);
-
-        var modelFilePath;
-        var destBinFilePath;
-        // 查找到模型文件位置
-        for (var i = 0; i < filesArr.length; i++) {
-          const filePath = filesArr[i];
-          const { name, ext } = path.parse(filePath);
-          if (ext == '.obj') {
-            modelFilePath = filePath;
-            console.log("模型文件位置:" + modelFilePath);
-            destBinFilePath = path.dirname(filePath) + "/" + path.basename(filePath, '.obj') + "_bin.js";
-            console.log("转换后的文件:" + destBinFilePath);
-            modelType = 1;
-            break;
-          } else if (ext == '.fbx') {
-            modelFilePath = filePath;
-            console.log("模型文件位置:" + modelFilePath);
-            destBinFilePath = path.dirname(filePath) + "/" + path.basename(filePath, '.fbx') + "_bin.js";
-            console.log("转换后的文件:" + destBinFilePath);
-            modelType = 2;
-            break;
-          }
+        const objPath = convert.findObj(flatedArr)
+        
+        if (objPath) {
+          const dirname = path.dirname(objPath) 
+          const { name, ext } = path.parse(objPath)
+          const srcFilePath  = `${dirname}/${name}${ext}`
+          const destBinFilePath = `${dirname}/${name}_bin.js`
+          // convert.obj(srcFilePath, destBinFilePath)
         }
-        if (modelType == 1) {        // obj模型
-          convert.obj(modelFilePath, destBinFilePath)
-        } else if (modelType == 2) { // fbx模型
-          convert.fbx(modelFilePath, destBinFilePath)
+
+        const fbxPath = convert.findFbx(flatedArr)
+        if (fbxPath) {
+          const { name, ext } = path.parse(fbxPath)
+          const srcFilePath  = `${unzipPath}/${fbxPath}`
+          const destBinFilePath = `${unzipPath}/${name}_bin.js`
+          convert.fbx(srcFilePath, destBinFilePath)
         }
       }
-      /**
-      let fd = fs.createReadStream(file.path).pipe(unzip.Extract({ path: unzipPath}))  
-      fd.on('close', function(){
-        const assets = fs.readdirSync(unzipPath)
-        file.list = assets
-        file.parent = fullPath
-        console.log(`finished files: `)
-      })
-      let end = new Promise(function(resolve, reject){
-        fd.on('close', resolve)
-        fd.on('error', reject) 
-      })
-      await end **/
     }
-    // console.log(`aa: ${JSON.stringify(file)}`)
-    const assets = fs.readdirSync(unzipPath)
-    file.list = assets
+    const assets = await f.listDir(unzipPath)
+    const fa = f.flat(assets)
+    const ff = f.regenRelative(fa, unzipPath)
+    const mname = f.mArray(ff)
+    const matDir = f.matPath(fullPath, mname)
+    file.list = ff
+    file.full = matDir
     file.parent = fullPath
-
     ctx.body = ctx.req.file
   })
  
@@ -149,24 +130,5 @@ file
     }
     ctx.body = result
   })
-
-  function readDirSync(path, filesArr) {
-    if (!filesArr) {
-      filesArr = [];
-    }
-    var pa = fs.readdirSync(path);  
-    pa.forEach(function(ele, index) {  
-        var info = fs.statSync(path + "/" + ele);      
-        if (info.isDirectory()) {  
-            console.log("dir: " + ele);
-            if (ele != '__MACOSX') {  // 排除mac系统的替身文件
-              readDirSync(path + "/" + ele, filesArr);
-            }  
-        } else {  
-            console.log("file: "+ path + "/" + ele); 
-            filesArr.push(path + "/" + ele); 
-        }     
-      })
-  }
 
 export default file
