@@ -116,7 +116,7 @@ file
     const mname = f.mArray(ff)
     const matDir = f.matPath(fullPath, mname)
     file.list = ff
-    file.full = matDir
+    file.murl = matDir
     file.parent = fullPath
     ctx.body = ctx.req.file
   })
