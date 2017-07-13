@@ -98,7 +98,7 @@ file
           const { name, ext } = path.parse(objPath)
           const srcFilePath  = `${dirname}/${name}${ext}`
           const destBinFilePath = `${dirname}/${name}_bin.js`
-          // convert.obj(srcFilePath, destBinFilePath)
+          convert.obj(srcFilePath, destBinFilePath)
         }
 
         const fbxPath = convert.findFbx(flatedArr)
