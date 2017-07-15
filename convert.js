@@ -7,7 +7,7 @@ import shell from 'shelljs'
 
 function obj(modelFilePath, destBinFilePath){
   console.log('开始')
-  const convertFilePath = path.resolve('./static/python/convert_obj_three.py');
+  const convertFilePath = path.resolve(__dirname, 'static/python/convert_obj_three.py');
   console.log('转换文件路径' + convertFilePath);
   const convertString = 'python ' + convertFilePath + ' -i ' + modelFilePath + ' -o ' + destBinFilePath + ' -a center -t binary'
   console.log(convertString)
@@ -20,7 +20,7 @@ function obj(modelFilePath, destBinFilePath){
 }
 
 function fbx(modelFilePath, destBinFilePath) {
-  const convertFilePath = path.resolve('./static/python/convert_to_threejs.py');
+  const convertFilePath = path.resolve(__dirname, 'static/python/convert_to_threejs.py');
   console.log('转换文件路径' + convertFilePath);
   const convertString = 'python ' + convertFilePath + ' ' + modelFilePath + ' ' + destBinFilePath;
   console.log(convertString)
