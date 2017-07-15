@@ -10,7 +10,7 @@ import fs from 'fs'
 import fse from 'fs-extra'
 import unzip from 'unzip'
 import shell from 'shelljs'
-
+import logger from '../helpers/log'
 const file = new Router({
 })
 
@@ -72,6 +72,9 @@ file
   })
   **/
   .post('/files', upload.single('model'), async ctx => {
+    // console.log(JSON.stringify(ctx))
+    
+    logger.info('start upload file...')
     const file = ctx.req.file
     const fileDirPath = fileDir(file.path)
     const { name, ext } = path.parse(file.filename)

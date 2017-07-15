@@ -4,18 +4,27 @@ import compress from 'koa-compress'
 import json from 'koa-json'
 import send from 'koa-send'
 import serve from 'koa-static'
-import logger from 'koa-logger'
+// import logger from 'koa-logger'
 import convert from 'koa-convert'
 import artTemplate from 'koa-artTemplate'
 import bodyParser from 'koa-bodyparser'
 import path from 'path'
-
+import log4js from 'koa-log4'
 
 import file from './router/file'
 
 import { KoaErr } from './helper'
 
+import logConfig from './log'
+log4js.configure(logConfig)
+const logger = log4js.getLogger('app')
 const app = new Koa()
+
+// 记录所用方式与时间
+//app.use(convert(logger()))
+app.use(log4js.koaLogger(logger, { level: 'info' }))
+
+logger.info('--------step into koa-------------')
 // 全局错误处理
 app.use(async (ctx, next) => {
   try {
@@ -43,9 +52,6 @@ app.use(compress({
   threshold: 2048,
   flush: require('zlib').Z_SYNC_FLUSH
 }))
-
-// 记录所用方式与时间
-app.use(convert(logger()))
 
 // 设置跨域
 app.use(convert(cors()))
@@ -84,4 +90,5 @@ app.use(qiniu(config))
 app.use(file.routes())
 
 app.listen(process.env.PORT || 3000)
+
 console.log(`Server up and running! On port ${process.env.PORT || 3000}!`)
