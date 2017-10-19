@@ -90,12 +90,13 @@ file
         console.log('unzip success')  
         // 转换模型
         // const filesArr = fs.readdirSync(unzipPath)
+       
+        /**        
+         *        
         const filesArr = await f.listDir(unzipPath)
         const flatedArr = f.flat(filesArr)
-        // const refinedArr = f.regenRelative(fa, unzipPath)
-        // console.log("所有文件:" + filesArr);
         const objPath = convert.findObj(flatedArr)
-        
+ 
         if (objPath) {
           const dirname = path.dirname(objPath) 
           const { name, ext } = path.parse(objPath)
@@ -110,7 +111,7 @@ file
           const srcFilePath  = `${unzipPath}/${fbxPath}`
           const destBinFilePath = `${unzipPath}/${name}_bin.js`
           convert.fbx(srcFilePath, destBinFilePath)
-        }
+        } **/
       }
     }
     const assets = await f.listDir(unzipPath)
