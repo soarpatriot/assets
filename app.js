@@ -18,6 +18,7 @@ import { KoaErr } from './helper'
 import logConfig from './log'
 log4js.configure(logConfig)
 const logger = log4js.getLogger('app')
+const options = { origin: '*'}
 const app = new Koa()
 
 // 记录所用方式与时间
@@ -54,7 +55,7 @@ app.use(compress({
 }))
 
 // 设置跨域
-app.use(convert(cors()))
+app.use(convert(cors(options)))
 
 // 传输JSON
 app.use(convert(json()))
