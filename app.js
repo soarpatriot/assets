@@ -55,7 +55,8 @@ app.use(compress({
 }))
 
 // 设置跨域
-app.use(convert(cors(options)))
+// app.use(convert(cors(options)))
+app.use(cors(options))
 
 // 传输JSON
 app.use(convert(json()))

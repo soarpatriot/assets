@@ -6,7 +6,7 @@ set :deploy_to, "/data/www/assets"
 
 set :app_pid, "#{shared_path}/tmp/pids/application-0.pid"
 
-set :server_name, "static.dreamreality.cn"
+set :server_name, "www.sanweiyun.com"
 
 set :branch, "master"
 
