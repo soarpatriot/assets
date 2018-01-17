@@ -117,8 +117,8 @@ file
     const assets = await f.listDir(unzipPath)
     const fa = f.flat(assets)
     const ff = f.regenRelative(fa, unzipPath)
-    const mname = f.mArray(ff)
-    const matDir = f.matPath(fullPath, mname)
+    const item = f.mArray(ff)
+    const matDir = f.matPath(fullPath, item.name)
     file.list = ff
     file.murl = matDir
     file.parent = fullPath

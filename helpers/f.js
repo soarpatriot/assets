@@ -38,13 +38,14 @@ function listDir(dir) {
 				))
 			})
 		} else {
-			return [dir]
+			return [{name: dir, size: stats.size }]
 		}
 	});
 }
-function removePrefix(path, prefix) {
+function removePrefix(item, prefix) {
   const re = new RegExp(`${prefix}/`)
-  return path.replace(re, "")
+  item.name = item.name.replace(re, "")
+  return item
 }  
 
 function filter(arr) {
@@ -53,10 +54,10 @@ function filter(arr) {
 
 
 function regenRelative(arr, prefix) {
-  const ar = arr.filter((a) => { 
-    return a.indexOf('__MACOSX') < 0 && a.indexOf('.DS_Store') < 0
+  const ar = arr.filter((item) => { 
+    return item.name.indexOf('__MACOSX') < 0 && item.name.indexOf('.DS_Store') < 0
   })
-  return ar.map((a) => {return removePrefix(a, prefix)})
+  return ar.map((item) => {return removePrefix(item, prefix)})
 }
 
 function flat(files) {
@@ -70,8 +71,8 @@ function struArr(files, prefix) {
   return regenRelative(fi,prefix)
 }
 
-function mArray(dir) {
-  const p = _.filter(dir, function(p) { return /(.jpg|.jpeg|.png|dds)$/gi.test(p) }) 
+function mArray(items) {
+  const p = _.filter(items, function(p) { return /(.jpg|.jpeg|.png|dds)$/gi.test(p.name) }) 
   if(p.length > 0){
     return p[0]
   } else {
