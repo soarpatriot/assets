@@ -142,5 +142,21 @@ file
     }
     ctx.body = result
   })
+  .get('/files/info/:name', async ctx => {
+    let name = ctx.params.name
+    let query = ctx.request.query
+    // let relative = ctx.params.relative
+    // console.log(`relative: ${query.relative}`)
+    const fileRelative = '../static/upload' + query.relative
+    let filePath = path.resolve(__dirname, fileRelative, name)
+    // console.log(filePath)
+    let stat = await f.statPromisify(filePath)
+    const result = {
+      size: stat.size,
+      name: name
+    }
+    ctx.body = result
+  })
+
 
 export default file
