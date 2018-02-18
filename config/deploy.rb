@@ -34,7 +34,7 @@ set :linked_dirs, fetch(:linked_dirs, []).push('bin',
 
 # Default value for keep_releases is 5
 # set :keep_releases, 5
-
+set :commands, "cd current && pm2 start ./config/process.yml"
 namespace :deploy do
   after :publishing, :upload do 
     invoke "docker:upload_compose"
