@@ -36,15 +36,6 @@ set :linked_dirs, fetch(:linked_dirs, []).push('bin',
 # set :keep_releases, 5
 
 namespace :deploy do
-  after :publishing, :upload do 
-    invoke "docker:upload_compose"
-    invoke "docker:upload_dockerfile"
-  end
-  task :build do 
-    execute :"docker", "container prune -f"
-    execute :"docker-compose", "down"
-    execute :"docker-compose", "up -d"
-  end
   task :restart  do
     invoke :"deploy:stop"
     invoke :"deploy:start"
@@ -53,6 +44,13 @@ namespace :deploy do
   task :start  do
     on roles(:web)  do
       within current_path do
+        unless test("[ -f #{fetch(:app_pid)} ]")
+          info ">>>>> start"
+          execute "pm2 start #{current_path}/config/process.yml"
+        else 
+          error ">>>>>> already started"
+        end 
+
       end
     end
   end
@@ -60,11 +58,13 @@ namespace :deploy do
   task :stop  do
     on roles(:web)  do
       within current_path do
+        if test("[ -f #{fetch(:app_pid)} ]")
+          info ">>>>> stop"
+          execute :pm2, 'stop assets'
+        end 
       end
     end
   end
 
 end
-after :published, :upload¬
 after "deploy:publishing", "deploy:restart"
-after :finished, :build
