@@ -6,7 +6,7 @@ set :deploy_to, "/data/www/assets"
 
 set :app_pid, "#{shared_path}/tmp/pids/application-0.pid"
 
-set :server_name, "www.sanweiyun.com"
+set :server_name, "47.52.174.229"
 
 set :branch, "dev"
 

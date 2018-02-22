@@ -1,11 +1,13 @@
 version: '3'
 services: 
   assets:
-    build: docker 
-    images: soar/assets:1.0.0
+    build: ./docker 
+    image: soar/assets:1.0.7
     container_name: assets
     network_mode: "bridge"
     volumes: 
       - <%= fetch(:deploy_to) %>:<%= fetch(:deploy_to) %>
-    command: bash -c "<%= fetch(:commands) %>"
+    command: sh -c "<%= fetch(:commands) %>"
+    ports: 
+      - 5566:5566
 

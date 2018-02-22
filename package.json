@@ -25,6 +25,7 @@
     "bluebird": "^3.4.6",
     "fs-extra": "^3.0.1",
     "fs-promise": "^1.0.0",
+    "gm": "^0.5.0",
     "koa": "^2.0.0",
     "koa-artTemplate": "^2.0.6",
     "koa-better-body": "^3.0.2",

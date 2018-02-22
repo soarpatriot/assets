@@ -21,7 +21,8 @@ set :repo_url, 'git@github.com:soarpatriot/assets.git'
 
 # Default value for :pty is false
 # set :pty, true
-
+set :ssh_options, { :forward_agent => true }
+set :pty, true
 # Default value for :linked_files is []
 set :linked_files, fetch(:linked_files, []).push('config/process.yml', 'config/app.json')
 
@@ -34,16 +35,22 @@ set :linked_dirs, fetch(:linked_dirs, []).push('bin',
 
 # Default value for keep_releases is 5
 # set :keep_releases, 5
-set :commands, "cd current && pm2 start ./config/process.yml"
+
+set :deploy_to, "/data/www/assets"
+set :commands, "cd #{fetch(:deploy_to)}/current && npm install && pm2 start  #{fetch(:deploy_to)}/shared/config/process.yml --no-daemon"
 namespace :deploy do
-  after :publishing, :upload do 
+  after :publishing, :upload do
     invoke "docker:upload_compose"
     invoke "docker:upload_dockerfile"
   end
   task :build do 
-    execute :"docker", "container prune -f"
-    execute :"docker-compose", "down"
-    execute :"docker-compose", "up -d"
+    on roles(:all), in: :sequence do
+      within current_path  do
+				execute :"docker", "container prune -f"
+				execute :"docker-compose", "down"
+				execute :"docker-compose", "up -d"
+      end
+    end
   end
   task :restart  do
     invoke :"deploy:stop"
@@ -64,7 +71,7 @@ namespace :deploy do
     end
   end
 
+  after :finished, :build
 end
-after :published, :upload¬
+# after :published, :upload
 after "deploy:publishing", "deploy:restart"
-after :finished, :build
