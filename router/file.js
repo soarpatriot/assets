@@ -115,15 +115,14 @@ file
       }
     }
     const assets = await f.listDir(unzipPath)
-    logger.info('await...')
     const fa = f.flat(assets)
     const ff = f.regenRelative(fa, unzipPath)
-    logger.info('regen...')
     const item = f.mArray(ff)
-    const matDir = f.matPath(fullPath, item.name)
-    logger.info('matn...')
     file.list = ff
-    file.murl = matDir
+    if (item) {
+      const matDir = f.matPath(fullPath, item.name)
+      file.murl = matDir
+    }
     file.parent = fullPath
     ctx.body = ctx.req.file
   })
