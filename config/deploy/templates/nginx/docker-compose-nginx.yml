@@ -1,0 +1,14 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:1.13.9
+    container_name: nginx
+    restart: always
+    network_mode: "bridge"
+    ports:
+      - 80:80
+    volumes:
+      - /data/www/nginx/conf.d:/etc/nginx/conf.d
+      - /data/www/assets:/data/www/assets
+    external_links:
+      - assets:assets
